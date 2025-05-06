@@ -5,9 +5,8 @@ const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
 
-// Configuración CORS para permitir solicitudes desde tu dominio
+// Configuración de CORS para permitir solicitudes desde tu dominio
 const allowedOrigins = ['https://findweb.net', 'https://www.findweb.net'];
 
 app.use(cors({
@@ -15,6 +14,15 @@ app.use(cors({
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 }));
+
+// Inicializar socket.io con configuración de CORS
+const io = socketIo(server, {
+  cors: {
+    origin: allowedOrigins, // Asegúrate de que la URL de tu cliente esté permitida
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+  }
+});
 
 io.on('connection', (socket) => {
   console.log('a user connected');

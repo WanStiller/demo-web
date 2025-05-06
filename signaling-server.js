@@ -1,19 +1,36 @@
-const { Server } = require('socket.io');
+const express = require('express');
 const http = require('http');
+const socketIo = require('socket.io');
 
-const server = http.createServer();
-const io = new Server(server, {
-  cors: {
-    origin: "*"
-  }
-});
+const app = express();
+const server = http.createServer(app);
 
+// Usar el puerto que Render asigna automáticamente
+const port = process.env.PORT || 3000;
+const io = socketIo(server);
+
+// Cuando se recibe la oferta de conexión
 io.on('connection', (socket) => {
-  socket.on('offer', (data) => socket.broadcast.emit('offer', data));
-  socket.on('answer', (data) => socket.broadcast.emit('answer', data));
-  socket.on('ice-candidate', (data) => socket.broadcast.emit('ice-candidate', data));
+  console.log('Nuevo usuario conectado');
+
+  socket.on('offer', (offer) => {
+    socket.broadcast.emit('offer', offer);
+  });
+
+  socket.on('answer', (answer) => {
+    socket.broadcast.emit('answer', answer);
+  });
+
+  socket.on('ice-candidate', (candidate) => {
+    socket.broadcast.emit('ice-candidate', candidate);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Usuario desconectado');
+  });
 });
 
-server.listen(3000, () => {
-  console.log('Signaling server running on port 3000');
+server.listen(port, () => {
+  console.log(`Servidor de señalización escuchando en el puerto ${port}`);
 });
+
